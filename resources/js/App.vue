@@ -1,10 +1,10 @@
 <script setup>
+import { ref } from 'vue'
+
+const isAuthenticated = ref(false) // placeholder until auth wiring
 </script>
 
 <template>
-    <div class="p-6">
-        <h1 class="text-xl font-bold">
-            VirgoSoft Limit Order Exchange
-        </h1>
-    </div>
+    <Header />
+    <router-view />
 </template>
