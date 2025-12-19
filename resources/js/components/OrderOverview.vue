@@ -19,8 +19,9 @@ async function loadProfile() {
     } catch (err: any) {
         if (err.response?.status === 401) {
             router.push('/login')
+            return
         }
-        throw err
+        throw err // Keep this for non-401 errors
     }
 }
 
@@ -34,10 +35,12 @@ async function loadOrders() {
     } catch (err: any) {
         if (err.response?.status === 401) {
             router.push('/login')
+            return
         }
-        throw err
+        throw err // Keep this for non-401 errors
     }
 }
+
 
 async function refreshAll() {
     try {
