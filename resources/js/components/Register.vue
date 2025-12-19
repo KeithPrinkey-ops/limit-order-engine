@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from "axios";
 
 const router = useRouter()
 
