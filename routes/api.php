@@ -7,18 +7,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 
 
-Route::get('/profile', [ProfileController::class, 'show']);
-
-Route::get('/orders', [OrderController::class, 'index']);
-Route::post('/orders', [OrderController::class, 'store']);
-Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
-
-Route::post('/login', [RegisterController::class, 'login']);
-Route::post('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    return response()->json(['message' => 'Logged out']);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
 });
+
 Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/login', [RegisterController::class, 'login']);
+Route::post('/logout', [RegisterController::class, 'logout']);
+

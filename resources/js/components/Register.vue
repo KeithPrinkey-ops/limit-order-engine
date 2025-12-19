@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from "axios";
 
 const router = useRouter()
 
@@ -15,6 +16,7 @@ const errors = reactive({
   name: null,
   email: null,
   password: null,
+  password_confirmation: null,
   general: null
 })
 
@@ -29,12 +31,12 @@ async function register() {
 
   try {
     // Get CSRF cookie for Laravel session auth
-    await fetch('/sanctum/csrf-cookie', {
-      method: 'GET',
-      credentials: 'include'
-    })
+      await fetch('/sanctum/csrf-cookie', {
+          method: 'GET',
+          credentials: 'include'
+      })
 
-    const res = await fetch('/register', {
+    const res = await fetch('/api/register', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -65,6 +67,7 @@ async function register() {
     }
 
     // Success - redirect to orders page using Vue router
+    loading.value = false
     await router.push('/orders')
   } catch (err) {
     errors.general = 'Network error'
@@ -123,6 +126,8 @@ async function register() {
                                     type="text"
                                     class="block px-4 py-4 mt-2 w-full text-xl rounded-lg placeholder-zinc-400 bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-50"
                                     placeholder="Enter your full name" />
+                                <p v-if="errors.name" class="text-sm text-red-600 mt-1">{{ errors.name }}</p>
+
                             </div>
 
                             <div class="relative">
@@ -132,6 +137,8 @@ async function register() {
                                     type="email"
                                     class="block px-4 py-4 mt-2 w-full text-xl rounded-lg placeholder-zinc-400 bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-50"
                                     placeholder="Enter your email address" />
+                                <p v-if="errors.email" class="text-sm text-red-600 mt-1">{{ errors.email }}</p>
+
                             </div>
 
                             <div class="relative">
@@ -141,6 +148,8 @@ async function register() {
                                     type="password"
                                     class="block px-4 py-4 mt-2 w-full text-xl rounded-lg placeholder-zinc-400 bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-50"
                                     placeholder="Create a secure password" />
+                                <p v-if="errors.password" class="text-sm text-red-600 mt-1">{{ errors.password }}</p>
+
                             </div>
 
                             <div class="relative">
@@ -150,6 +159,8 @@ async function register() {
                                     type="password"
                                     class="block px-4 py-4 mt-2 w-full text-xl rounded-lg placeholder-zinc-400 bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-50"
                                     placeholder="Confirm your password" />
+                                <p v-if="errors.password_confirmation" class="text-sm text-red-600 mt-1">{{ errors.password_confirmation }}</p>
+
                             </div>
 
                             <div class="relative pt-5">

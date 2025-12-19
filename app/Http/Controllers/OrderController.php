@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 use App\Events\OrderMatchedEvent;
 use App\Models\Trade;
+use Illuminate\Auth\Middleware\Authenticate;
 
 class OrderController extends Controller
 {
+
 
     public function index(Request $request)
     {
@@ -33,7 +35,8 @@ class OrderController extends Controller
                     ->orderBy('price')
                     ->get(),
             ],
-            'orders' => Order::where('user_id', 4)->get(),
+            'orders' => Order::where('orders.user_id', $request->user()->id)->get(),
+
         ]);
     }
 
@@ -49,7 +52,7 @@ class OrderController extends Controller
         return DB::transaction(function () use ($request, $data) {
 
             // hard coded user ID 4 for simplicity
-            $user = User::where('id', 4)
+            $user = User::where('id', $request->user()->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 

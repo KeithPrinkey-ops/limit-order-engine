@@ -1,36 +1,53 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const symbol = ref('BTC')
 
 const profile = ref<any>(null)
 const orderbook = ref<{ buy: any[]; sell: any[] }>({ buy: [], sell: [] })
 const allOrders = ref<any[]>([])
 const loading = ref(true)
+const error = ref<string | null>(null)
 
 async function loadProfile() {
-    const { data } = await axios.get('/api/profile')
-    profile.value = data
+    try {
+        const { data } = await axios.get('/api/profile')
+        profile.value = data
+    } catch (err: any) {
+        if (err.response?.status === 401) {
+            router.push('/login')
+        }
+        throw err
+    }
 }
 
 async function loadOrders() {
-    const { data } = await axios.get('/api/orders', {
-        params: { symbol: symbol.value },
-    })
-
-    // Expected backend response shape:
-    // {
-    //   orderbook: { buy: [], sell: [] },
-    //   orders: []
-    // }
-    orderbook.value = data.orderbook
-    allOrders.value = data.orders
+    try {
+        const { data } = await axios.get('/api/orders', {
+            params: { symbol: symbol.value },
+        })
+        orderbook.value = data.orderbook
+        allOrders.value = data.orders
+    } catch (err: any) {
+        if (err.response?.status === 401) {
+            router.push('/login')
+        }
+        throw err
+    }
 }
 
 async function refreshAll() {
-    await loadProfile()
-    await loadOrders()
+    try {
+        await loadProfile()
+        await loadOrders()
+        error.value = null
+    } catch (err: any) {
+        error.value = 'Failed to load data. Please try logging in again.'
+        console.error(err)
+    }
 }
 
 function statusLabel(status: number) {
@@ -44,7 +61,6 @@ onMounted(async () => {
     await refreshAll()
     loading.value = false
 
-    // Mandatory real-time integration
     if (window.Echo && profile.value?.id) {
         window.Echo
             .private(`private-user.${profile.value.id}`)
@@ -54,6 +70,7 @@ onMounted(async () => {
     }
 })
 </script>
+
 <template>
     <div class="min-h-screen bg-slate-100 px-6 py-10">
         <div class="mx-auto max-w-7xl space-y-10">
