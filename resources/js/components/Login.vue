@@ -1,48 +1,46 @@
 <script setup lang="ts">
-            import { reactive, ref } from 'vue'
-            import { useRouter } from 'vue-router'
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-            const router = useRouter()
+const router = useRouter()
 
-            const form = reactive({
-                email: '',
-                password: '',
-            })
+const form = reactive({
+    email: '',
+    password: '',
+})
 
-            const error = ref<string | null>(null)
-            const loading = ref(false)
+const error = ref<string | null>(null)
+const loading = ref(false)
 
-            async function login() {
-                error.value = null
-                loading.value = true
+async function login() {
+    error.value = null
+    loading.value = true
 
-                try {
-                    // Required for Sanctum session auth
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(form)
+        })
 
+        if (!res.ok) {
+            error.value = 'Invalid email or password'
+            return; // Exit the function early
+        }
 
-                    const res = await fetch('/api/login', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(form)
-                    })
+        await router.push('/orders')
 
-                    if (!res.ok) {
-                        throw new Error('Invalid credentials')
-                    }
-
-                    await router.push('/orders')
-
-                } catch (e) {
-                    error.value = 'Invalid email or password'
-                } finally {
-                    loading.value = false
-                }
-            }
-            </script>
+    } catch (e) {
+        error.value = 'A network error occurred. Please try again.'
+    } finally {
+        loading.value = false
+    }
+}
+</script>
 
             <template>
                 <section class="px-8 py-16 w-full bg-zinc-100 xl:px-8">
