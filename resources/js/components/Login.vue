@@ -99,14 +99,14 @@ async function submit() {
                             type="email"
                             name="email"
                             id="email"
-                            class="block px-4 py-3 mb-4 w-full rounded-lg border-2 border-transparent border-zinc-200 focus:ring focus:ring-blue-500 focus:outline-none"
+                            class="block px-4 py-3 mb-4 w-full rounded-lg border-2 border-zinc-200 focus:ring focus:ring-blue-500 focus:outline-none"
                             placeholder="Email address" />
 
                         <input
                             type="password"
                             name="password"
                             id="password"
-                            class="block px-4 py-3 mb-4 w-full rounded-lg border-2 border-transparent border-zinc-200 focus:ring focus:ring-blue-500 focus:outline-none"
+                            class="block px-4 py-3 mb-4 w-full rounded-lg border-2 border-zinc-200 focus:ring focus:ring-blue-500 focus:outline-none"
                             placeholder="Password" />
 
                         <div class="block">

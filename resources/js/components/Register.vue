@@ -78,7 +78,7 @@ async function register() {
     <section class="w-full bg-white">
         <div class="mx-auto max-w-7xl">
             <div class="flex flex-col lg:flex-row">
-                <div class="relative w-full bg-cover bg-gradient-to-r from-white via-white lg:w-6/12 xl:w-7/12 to-zinc-100">
+                <div class="relative w-full bg-cover bg-linear-to-r from-white via-white lg:w-6/12 xl:w-7/12 to-zinc-100">
                     <div class="flex relative flex-col justify-center items-center px-10 my-20 w-full h-full lg:px-16 lg:my-0">
                         <div class="flex flex-col items-start space-y-8 tracking-tight lg:max-w-3xl">
                             <div class="relative">
