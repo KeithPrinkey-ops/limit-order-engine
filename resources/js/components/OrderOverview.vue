@@ -99,8 +99,7 @@ onMounted(async () => {
                                     <li
                                         v-for="order in orderbook.buy"
                                         :key="order.id"
-                                        class="flex justify-between rounded-lg bg-emerald-50 px-3 py-2"
-                                    >
+                                        class="flex justify-between rounded-lg bg-emerald-50 px-3 py-2">
                                         <span>{{ order.amount }}</span>
                                         <span class="font-mono">@ {{ order.price }}</span>
                                     </li>
@@ -119,8 +118,7 @@ onMounted(async () => {
                                     <li
                                         v-for="order in orderbook.sell"
                                         :key="order.id"
-                                        class="flex justify-between rounded-lg bg-rose-50 px-3 py-2"
-                                    >
+                                        class="flex justify-between rounded-lg bg-rose-50 px-3 py-2">
                                         <span>{{ order.amount }}</span>
                                         <span class="font-mono">@ {{ order.price }}</span>
                                     </li>
@@ -156,8 +154,7 @@ onMounted(async () => {
                                 <tr
                                     v-for="order in allOrders"
                                     :key="order.id"
-                                    class="border-b last:border-0 hover:bg-slate-50"
-                                >
+                                    class="border-b last:border-0 hover:bg-slate-50">
                                     <td class="px-6 py-3 font-medium">{{ order.symbol }}</td>
                                     <td class="px-6 py-3 capitalize">{{ order.side }}</td>
                                     <td class="px-6 py-3">{{ order.price }}</td>
@@ -169,8 +166,7 @@ onMounted(async () => {
                                                 'bg-yellow-100 text-yellow-800': order.status === 1,
                                                 'bg-emerald-100 text-emerald-800': order.status === 2,
                                                 'bg-slate-200 text-slate-700': order.status === 3,
-                                            }"
-                                        >
+                                            }">
                                             {{ statusLabel(order.status) }}
                                         </span>
                                     </td>

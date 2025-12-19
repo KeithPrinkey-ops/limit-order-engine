@@ -14,3 +14,11 @@ Route::post('/orders', [OrderController::class, 'store']);
 Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
 
 Route::post('/login', [RegisterController::class, 'login']);
+Route::post('/logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return response()->json(['message' => 'Logged out']);
+});
+Route::post('/register', [RegisterController::class, 'register']);

@@ -34,7 +34,7 @@ class RegisterController extends Controller
             ], 201);
         }
 
-        return redirect()->route('home')->with('success', 'Registration successful!');
+        return view('app');
     }
 
     public function login(Request $request)
