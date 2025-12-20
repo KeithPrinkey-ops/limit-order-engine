@@ -1,111 +1,112 @@
 <script setup lang="ts">
-                            import { ref, onMounted, reactive } from 'vue'
-                            import axios from 'axios'
-                            import { useRouter } from 'vue-router'
+import {ref, onMounted, reactive} from 'vue'
+import axios from 'axios'
+import {useRouter} from 'vue-router'
 
-                            const router = useRouter()
-                            const symbol = ref('BTC')
+const router = useRouter()
+const symbol = ref('BTC')
 
-                            const profile = ref<any>(null)
-                            const orderbook = ref<{ buy: any[]; sell: any[] }>({ buy: [], sell: [] })
-                            const allOrders = ref<any[]>([])
-                            const loading = ref(true)
-                            const error = ref<string | null>(null)
+const profile = ref<any>(null)
+const orderbook = ref<{ buy: any[]; sell: any[] }>({buy: [], sell: []})
+const allOrders = ref<any[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
 
-                            // Password Update State
-                            const passwordForm = reactive({
-                                current_password: '',
-                                password: '',
-                                password_confirmation: '',
-                            })
-                            const passwordUpdateLoading = ref(false)
-                            const passwordUpdateError = ref<string | null>(null)
-                            const passwordUpdateSuccess = ref<string | null>(null)
+// Password Update State
+const passwordForm = reactive({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+})
+const passwordUpdateLoading = ref(false)
+const passwordUpdateError = ref<string | null>(null)
+const passwordUpdateSuccess = ref<string | null>(null)
 
-                            async function updatePassword() {
-                                passwordUpdateLoading.value = true
-                                passwordUpdateError.value = null
-                                passwordUpdateSuccess.value = null
-                                try {
-                                    const { data } = await axios.post('/api/profile/password', passwordForm)
-                                    passwordUpdateSuccess.value = data.message
-                                    passwordForm.current_password = ''
-                                    passwordForm.password = ''
-                                    passwordForm.password_confirmation = ''
-                                } catch (err: any) {
-                                    passwordUpdateError.value = err.response?.data?.message || 'An unknown error occurred.'
-                                    if (err.response?.data?.errors) {
-                                        // Handle specific validation errors if needed
-                                        const errors = err.response.data.errors
-                                        const firstErrorKey = Object.keys(errors)[0]
-                                        passwordUpdateError.value = errors[firstErrorKey][0]
-                                    }
-                                } finally {
-                                    passwordUpdateLoading.value = false
-                                }
-                            }
+async function updatePassword() {
+    passwordUpdateLoading.value = true
+    passwordUpdateError.value = null
+    passwordUpdateSuccess.value = null
+    try {
+        const {data} = await axios.post('/api/profile/password', passwordForm)
+        passwordUpdateSuccess.value = data.message
+        passwordForm.current_password = ''
+        passwordForm.password = ''
+        passwordForm.password_confirmation = ''
+    } catch (err: any) {
+        passwordUpdateError.value = err.response?.data?.message || 'An unknown error occurred.'
+        if (err.response?.data?.errors) {
+            // Handle specific validation errors if needed
+            const errors = err.response.data.errors
+            const firstErrorKey = Object.keys(errors)[0]
+            passwordUpdateError.value = errors[firstErrorKey][0]
+        }
+    } finally {
+        passwordUpdateLoading.value = false
+    }
+}
 
-                            async function loadProfile() {
-                                try {
-                                    const { data } = await axios.get('/api/profile')
-                                    profile.value = data
-                                } catch (err: any) {
-                                    if (err.response?.status === 401) {
-                                        router.push('/login')
-                                        return
-                                    }
-                                    throw err
-                                }
-                            }
+async function loadProfile() {
+    try {
+        const {data} = await axios.get('/api/profile')
+        profile.value = data
+    } catch (err: any) {
+        if (err.response?.status === 401) {
+            router.push('/login')
+            return
+        }
+        throw err
+    }
+}
 
-                            async function loadOrders() {
-                                try {
-                                    const { data } = await axios.get('/api/orders', {
-                                        params: { symbol: symbol.value },
-                                    })
-                                    orderbook.value = data.orderbook
-                                    allOrders.value = data.orders
-                                } catch (err: any) {
-                                    if (err.response?.status === 401) {
-                                        router.push('/login')
-                                        return
-                                    }
-                                    throw err
-                                }
-                            }
+async function loadOrders() {
+    try {
+        const {data} = await axios.get('/api/orders', {
+            params: {symbol: symbol.value},
+        })
+        orderbook.value = data.orderbook
+        allOrders.value = data.orders
+    } catch (err: any) {
+        if (err.response?.status === 401) {
+            router.push('/login')
+            return
+        }
+        throw err
+    }
+}
 
 
-                            async function refreshAll() {
-                                try {
-                                    await loadProfile()
-                                    await loadOrders()
-                                    error.value = null
-                                } catch (err: any) {
-                                    error.value = 'Failed to load data. Please try logging in again.'
-                                    console.error(err)
-                                }
-                            }
+async function refreshAll() {
+    try {
+        await loadProfile()
+        await loadOrders()
+        error.value = null
+    } catch (err: any) {
+        error.value = 'Failed to load data. Please try logging in again.'
+        console.error(err)
+    }
+}
 
-                            function statusLabel(status: number) {
-                                if (status === 1) return 'Open'
-                                if (status === 2) return 'Filled'
-                                if (status === 3) return 'Cancelled'
-                                return 'Unknown'
-                            }
+function statusLabel(status: number) {
+    if (status === 1) return 'Open'
+    if (status === 2) return 'Filled'
+    if (status === 3) return 'Cancelled'
+    return 'Unknown'
+}
 
-                            onMounted(async () => {
-                                await refreshAll()
-                                loading.value = false
+onMounted(async () => {
+    await refreshAll()
+    loading.value = false
 
-                                if (window.Echo && profile.value?.id) {
-                                    window.Echo
-                                        .private(`private-user.${profile.value.id}`)
-                                        .listen('.OrderMatched', () => {
-                                            refreshAll()
-                                        })
-                                }
-                            })
-                            </script><template>
+    if (window.Echo && profile.value?.id) {
+        window.Echo
+            .private(`private-user.${profile.value.id}`)
+            .listen('.OrderMatched', () => {
+                refreshAll()
+            })
+    }
+})
+</script>
+<template>
     <div class="min-h-screen bg-slate-100 px-6 py-10">
         <div class="mx-auto max-w-7xl space-y-10">
 
@@ -149,22 +150,41 @@
                             <form @submit.prevent="updatePassword" class="space-y-5">
                                 <h3 class="font-semibold text-slate-800">Update Password</h3>
 
-                                <div v-if="passwordUpdateSuccess" class="p-3 m-5 text-sm text-emerald-700 bg-emerald-50 rounded-lg border border-emerald-200">{{ passwordUpdateSuccess }}</div>
-                                <div v-if="passwordUpdateError" class="p-3 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200">{{ passwordUpdateError }}</div>
+                                <div v-if="passwordUpdateSuccess"
+                                     class="p-3 m-5 text-sm text-emerald-700 bg-emerald-50 rounded-lg border border-emerald-200">
+                                    {{ passwordUpdateSuccess }}
+                                </div>
+                                <div v-if="passwordUpdateError"
+                                     class="p-3 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200">
+                                    {{ passwordUpdateError }}
+                                </div>
 
                                 <div>
-                                    <label for="current_password" class="m-2 block text-sm font-medium text-slate-600 mb-1">Current Password</label>
-                                    <input v-model="passwordForm.current_password" type="password" id="current_password" class="block w-full rounded-lg border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your current password">
+                                    <label for="current_password"
+                                           class="m-2 block text-sm font-medium text-slate-600 mb-1">Current
+                                        Password</label>
+                                    <input v-model="passwordForm.current_password" type="password" id="current_password"
+                                           class="block w-full rounded-lg border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="Enter your current password">
                                 </div>
                                 <div>
-                                    <label for="password" class="m-2 block text-sm font-medium text-slate-600 mb-1">New Password</label>
-                                    <input v-model="passwordForm.password" type="password" id="password" class="block w-full rounded-lg border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter a new password">
+                                    <label for="password" class="m-2 block text-sm font-medium text-slate-600 mb-1">New
+                                        Password</label>
+                                    <input v-model="passwordForm.password" type="password" id="password"
+                                           class="block w-full rounded-lg border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="Enter a new password">
                                 </div>
                                 <div>
-                                    <label for="password_confirmation" class="m-2 block text-sm font-medium text-slate-600 mb-1">Confirm New Password</label>
-                                    <input v-model="passwordForm.password_confirmation" type="password" id="password_confirmation" class="block w-full rounded-lg border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Confirm your new password">
+                                    <label for="password_confirmation"
+                                           class="m-2 block text-sm font-medium text-slate-600 mb-1">Confirm New
+                                        Password</label>
+                                    <input v-model="passwordForm.password_confirmation" type="password"
+                                           id="password_confirmation"
+                                           class="block w-full rounded-lg border-slate-300 bg-slate-50 px-4 py-3 text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="Confirm your new password">
                                 </div>
-                                <button type="submit" :disabled="passwordUpdateLoading" class="mt-5 pt-5 pb-5 w-full px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <button type="submit" :disabled="passwordUpdateLoading"
+                                        class="mt-5 pt-5 pb-5 w-full px-4 py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
                                     {{ passwordUpdateLoading ? 'Updating...' : 'Update Password' }}
                                 </button>
                             </form>

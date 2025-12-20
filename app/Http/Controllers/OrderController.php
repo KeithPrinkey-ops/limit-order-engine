@@ -44,8 +44,8 @@ class OrderController extends Controller
     {
         $data = $request->validate([
             'symbol' => 'required|string',
-            'side'   => 'required|in:buy,sell',
-            'price'  => 'required|numeric|min:0.00000001',
+            'side' => 'required|in:buy,sell',
+            'price' => 'required|numeric|min:0.00000001',
             'amount' => 'required|numeric|min:0.00000001',
         ]);
 
@@ -79,11 +79,11 @@ class OrderController extends Controller
 
             $order = Order::create([
                 'user_id' => $user->id,
-                'symbol'  => $data['symbol'],
-                'side'    => $data['side'],
-                'price'   => $data['price'],
-                'amount'  => $data['amount'],
-                'status'  => 1, // open
+                'symbol' => $data['symbol'],
+                'side' => $data['side'],
+                'price' => $data['price'],
+                'amount' => $data['amount'],
+                'status' => 1, // open
             ]);
 
             // matching will run next
@@ -114,7 +114,7 @@ class OrderController extends Controller
             ->lockForUpdate()
             ->first();
 
-        if (! $counterOrder) {
+        if (!$counterOrder) {
             return;
         }
 
@@ -126,10 +126,10 @@ class OrderController extends Controller
         $amount = $order->amount;
 
         $grossUsd = bcmul($price, $amount, 8);
-        $feeUsd   = bcmul($grossUsd, '0.015', 8);
-        $netUsd   = bcsub($grossUsd, $feeUsd, 8);
+        $feeUsd = bcmul($grossUsd, '0.015', 8);
+        $netUsd = bcsub($grossUsd, $feeUsd, 8);
 
-        $buyer  = User::where('id', $order->side === 'buy' ? $order->user_id : $counterOrder->user_id)
+        $buyer = User::where('id', $order->side === 'buy' ? $order->user_id : $counterOrder->user_id)
             ->lockForUpdate()
             ->first();
 
@@ -164,21 +164,21 @@ class OrderController extends Controller
         $counterOrder->save();
 
         Trade::create([
-            'buy_order_id'  => $order->side === 'buy' ? $order->id : $counterOrder->id,
+            'buy_order_id' => $order->side === 'buy' ? $order->id : $counterOrder->id,
             'sell_order_id' => $order->side === 'sell' ? $order->id : $counterOrder->id,
-            'symbol'        => $order->symbol,
-            'price'         => $price,
-            'amount'        => $amount,
-            'commission'    => $feeUsd,
+            'symbol' => $order->symbol,
+            'price' => $price,
+            'amount' => $amount,
+            'commission' => $feeUsd,
         ]);
 
         event(new OrderMatchedEvent(
             $buyer->id,
             [
                 'order_id' => $order->id,
-                'symbol'   => $order->symbol,
-                'side'     => 'buy',
-                'status'   => 'filled',
+                'symbol' => $order->symbol,
+                'side' => 'buy',
+                'status' => 'filled',
             ]
         ));
 
@@ -186,9 +186,9 @@ class OrderController extends Controller
             $seller->id,
             [
                 'order_id' => $counterOrder->id,
-                'symbol'   => $order->symbol,
-                'side'     => 'sell',
-                'status'   => 'filled',
+                'symbol' => $order->symbol,
+                'side' => 'sell',
+                'status' => 'filled',
             ]
         ));
     }
